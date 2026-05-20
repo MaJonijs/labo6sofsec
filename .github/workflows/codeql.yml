@@ -1,44 +1,55 @@
-name: "SAST Scan"
+name: "SCA Scan" 
 
-on:
-  push:
-    branches: [ "main", "master" ]
-  pull_request:
-    branches: [ "main", "master" ]
-  schedule:
-    # Dit voert de scan elke maandag om 00:00 uit
-    - cron: '0 0 * * 1'
+ 
 
-jobs:
-  analyze:
-    name: Analyze
-    runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
+on: 
 
-    strategy:
-      fail-fast: false
-      matrix:
-        language: [ 'javascript' ] # Juice-Shop is primair JS/TS
+  push: 
 
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+    branches: [ "main", "master" ] 
 
-    # Initialiseer de CodeQL tools
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
-      with:
-        languages: ${{ matrix.language }}
+  pull_request: 
 
-    # CodeQL probeert automatisch de build te begrijpen
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v2
+    branches: [ "main", "master" ] 
 
-    # Voer de daadwerkelijke scan uit
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
-      with:
-        category: "/language:${{ matrix.language }}"
+  schedule: 
+
+    # Wekelijkse scan op maandagochtend 
+
+    - cron: '0 8 * * 1' 
+
+ 
+
+jobs: 
+
+  sca-scan: 
+
+    name: Dependency Security Scan 
+
+    runs-on: ubuntu-latest 
+
+    steps: 
+
+      - name: Checkout code 
+
+        uses: actions/checkout@v3 
+
+ 
+
+      - name: Run Trivy SCA 
+
+        uses: aquasecurity/trivy-action@master 
+
+        with: 
+
+          scan-type: 'fs' 
+
+          scan-ref: '.' 
+
+          # '1' zorgt ervoor dat de pipeline stopt (fail) bij gevonden lekken 
+
+          exit-code: '1' 
+
+          severity: 'CRITICAL,HIGH' 
+
+          format: 'table' 
