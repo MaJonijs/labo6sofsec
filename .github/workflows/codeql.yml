@@ -1,4 +1,4 @@
-name: "SCA Scan" 
+name: "Secret Scanning" 
 
  
 
@@ -14,17 +14,15 @@ on:
 
   schedule: 
 
-    # Wekelijkse scan op maandagochtend 
-
-    - cron: '0 8 * * 1' 
+    - cron: '0 10 * * 1' 
 
  
 
 jobs: 
 
-  sca-scan: 
+  gitleaks: 
 
-    name: Dependency Security Scan 
+    name: Gitleaks Scan 
 
     runs-on: ubuntu-latest 
 
@@ -34,22 +32,22 @@ jobs:
 
         uses: actions/checkout@v3 
 
+        with: 
+
+          fetch-depth: 0 # Nodig om de volledige geschiedenis te scannen 
+
  
 
-      - name: Run Trivy SCA 
+      - name: Run Gitleaks 
 
-        uses: aquasecurity/trivy-action@master 
+        uses: gitleaks/gitleaks-action@v2 
+
+        env: 
+
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
 
         with: 
 
-          scan-type: 'fs' 
+          # De pipeline blokkeert (fail) automatisch als er iets gevonden wordt 
 
-          scan-ref: '.' 
-
-          # '1' zorgt ervoor dat de pipeline stopt (fail) bij gevonden lekken 
-
-          exit-code: '1' 
-
-          severity: 'CRITICAL,HIGH' 
-
-          format: 'table' 
+          fail: true
